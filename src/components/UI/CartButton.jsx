@@ -1,11 +1,40 @@
-import React from "react";
-// import cartIcon from "../../assets/cartIcon.svg";
+import React, { useContext, useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { FaShoppingCart } from "react-icons/fa";
+import CartContext from "../../store/cart-context";
+import styles from "./CartButton.module.css";
 
 const CartButton = (props) => {
+  const [btnIsHighlighted, setBtnIsHighlighted] = useState(false);
+  const cartCtx = useContext(CartContext);
+
+  const { items } = cartCtx;
+
+  const numOfCartItems = items.reduce((curNum, item) => {
+    return curNum + item.amount;
+  }, 0);
+
+  const btnClasses = `${btnIsHighlighted ? styles.bump : ""}`;
+
+  useEffect(() => {
+    if (items.length === 0) {
+      return;
+    }
+    setBtnIsHighlighted(true);
+
+    const bumpTimer = setTimeout(() => {
+      setBtnIsHighlighted(false);
+    }, 300);
+
+    return () => {
+      clearTimeout(bumpTimer);
+    };
+  }, [items]);
+
   return (
-    <Button onClick={props.onClick}>
+    <Button
+      className={btnClasses}
+      onClick={props.onClick}>
       <CartIcon>
         <FaShoppingCart
           size={20}
@@ -13,7 +42,7 @@ const CartButton = (props) => {
         />
       </CartIcon>
       <CartText>Your Cart</CartText>
-      <Badge>3</Badge>
+      <Badge>{numOfCartItems}</Badge>
     </Button>
   );
 };

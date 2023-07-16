@@ -1,11 +1,32 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { styled } from "styled-components";
 import Input from "../../UI/Input";
 
-const BookItemForm = () => {
+const BookItemForm = (props) => {
+  const [amountIsValid, setAmountIsValid] = useState(true);
+  const amountInputRef = useRef();
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+    const enteredAmount = amountInputRef.current.value;
+    const enteredAmountNumber = +enteredAmount;
+
+    if (
+      enteredAmount.trim().length === 0 ||
+      enteredAmountNumber < 1 ||
+      enteredAmountNumber > 5
+    ) {
+      setAmountIsValid(false);
+      return;
+    }
+
+    props.onAddToCart(enteredAmountNumber);
+  };
+
   return (
-    <Form>
+    <Form onSubmit={submitHandler}>
       <Input
+        ref={amountInputRef}
         label="Amount"
         input={{
           id: "amount",
@@ -17,6 +38,9 @@ const BookItemForm = () => {
         }}
       />
       <Button>+ Add</Button>
+      {!amountIsValid && (
+        <ErrorMsg>Please enter a valid amount (1-5)!</ErrorMsg>
+      )}
     </Form>
   );
 };
@@ -42,4 +66,8 @@ const Button = styled.button`
     background-color: #cb531f;
     border-color: #cb531f;
   }
+`;
+
+const ErrorMsg = styled.h4`
+  color: #e11d48;
 `;

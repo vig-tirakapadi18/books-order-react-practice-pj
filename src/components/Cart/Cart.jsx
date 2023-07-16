@@ -1,14 +1,35 @@
-import React from "react";
+import React, { useContext } from "react";
 import { styled } from "styled-components";
 import Modal from "../UI/Modal";
+import CartContext from "../../store/cart-context";
+import CartItem from "./CartItem";
 
 const Cart = (props) => {
+  const cartCtx = useContext(CartContext);
+
+  const totalAmount = `Rs ${cartCtx.totalAmount.toFixed(2)}`;
+
+  const hasItems = cartCtx.items.length > 0;
+
+  const removeCartItemHandler = (id) => {
+    cartCtx.removeItem(id);
+  };
+
+  const addCartItemHandler = (item) => {
+    cartCtx.addItem({ ...item, amount: 1 });
+  };
+
   const cartItems = (
     <CartItems>
-      {[
-        { id: "b1", name: "The Obstacle Is The Way", amount: 2, price: 140 },
-      ].map((item) => (
-        <li>{item.name}</li>
+      {cartCtx.items.map((item) => (
+        <CartItem
+          key={item.id}
+          name={item.name}
+          amount={item.amount}
+          price={item.price}
+          onAdd={addCartItemHandler.bind(null, item)}
+          onRemove={removeCartItemHandler.bind(null, item.id)}
+        />
       ))}
     </CartItems>
   );
@@ -18,11 +39,11 @@ const Cart = (props) => {
       {cartItems}
       <Total>
         <span>Total amount</span>
-        <span>280</span>
+        <span>{totalAmount}</span>
       </Total>
       <ButtonContainer>
         <CloseButton onClick={props.onHideCart}>Close</CloseButton>
-        <OrderButton>Order</OrderButton>
+        {hasItems && <OrderButton>Order</OrderButton>}
       </ButtonContainer>
     </Modal>
   );

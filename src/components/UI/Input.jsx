@@ -1,17 +1,18 @@
 import React from "react";
 import { styled } from "styled-components";
 
-const Input = (props) => {
+const Input = React.forwardRef((props, ref) => {
   return (
     <InputContainer>
       <label htmlFor={props.input.id}>{props.label}</label>
       <input
+        ref={ref}
         id={props.input.id}
         {...props.input}
       />
     </InputContainer>
   );
-};
+});
 
 export default Input;
 
