@@ -1,10 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { styled } from "styled-components";
 import Modal from "../UI/Modal";
 import CartContext from "../../store/cart-context";
 import CartItem from "./CartItem";
+import Checkout from "./Checkout";
 
 const Cart = (props) => {
+  const [isCheckout, setIsCheckout] = useState(false);
+
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `Rs ${cartCtx.totalAmount.toFixed(2)}`;
@@ -17,6 +20,23 @@ const Cart = (props) => {
 
   const addCartItemHandler = (item) => {
     cartCtx.addItem({ ...item, amount: 1 });
+  };
+
+  const orderHandler = () => {
+    setIsCheckout(true);
+  };
+
+  const submitOrderhandler = (formData) => {
+    fetch(
+      "https://books-data-10a93-default-rtdb.asia-southeast1.firebasedatabase.app/booksOrders.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: formData,
+          orderedItems: cartCtx.items,
+        }),
+      }
+    );
   };
 
   const cartItems = (
@@ -41,10 +61,18 @@ const Cart = (props) => {
         <span>Total amount</span>
         <span>{totalAmount}</span>
       </Total>
-      <ButtonContainer>
-        <CloseButton onClick={props.onHideCart}>Close</CloseButton>
-        {hasItems && <OrderButton>Order</OrderButton>}
-      </ButtonContainer>
+      {isCheckout && (
+        <Checkout
+          onSubmitOrderData={submitOrderhandler}
+          onCancel={props.onHideCart}
+        />
+      )}
+      {!isCheckout && (
+        <ButtonContainer>
+          <CloseButton onClick={props.onHideCart}>Close</CloseButton>
+          {hasItems && <OrderButton onClick={orderHandler}>Order</OrderButton>}
+        </ButtonContainer>
+      )}
     </Modal>
   );
 };
